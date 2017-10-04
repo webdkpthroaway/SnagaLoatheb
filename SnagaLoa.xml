@@ -1,0 +1,977 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\..\FrameXML\UI.xsd">
+<GameTooltip name="SnagaLoaTooltip" inherits="GameTooltipTemplate" parent="UIParent" hidden="true"></GameTooltip>
+<script file="SnagaLoa.lua"/>
+<frame name="SnagaLoaFrame" frameStrata="LOW" toplevel="true" enableMouse="false" movable="true" parent="UIParent">
+        <Size>
+            <AbsDimension x="108" y="46"/>
+        </Size>
+        <Anchors>
+            <Anchor point="TOPLEFT"/>
+        </Anchors>
+		<Backdrop bgFile="Interface\TutorialFrame\TutorialFrameBackground" edgeFile="Interface\Tooltips\UI-Tooltip-Border" tile="true">
+			<BackgroundInsets>
+				<AbsInset left="5" right="4" top="5" bottom="5"/>
+			</BackgroundInsets>
+			<TileSize>
+				<AbsValue val="16"/>
+			</TileSize>
+			<EdgeSize>
+				<AbsValue val="16"/>
+			</EdgeSize>
+		</Backdrop>
+	<Scripts>
+		<OnLoad>
+			this:RegisterForDrag("LeftButton");
+			SnagaLoa_OnLoad();
+		</OnLoad>
+		<OnEvent>
+		        SnagaLoa_OnEvent();
+		</OnEvent>
+		<OnUpdate>
+			SnagaLoa_OnUpdate(arg1);
+		</OnUpdate>
+		<OnMouseDown>
+			if ( IsShiftKeyDown() and arg1 == "LeftButton" ) then
+			SnagaLoaFrame:StartMoving();
+			end
+		</OnMouseDown>
+		<OnMouseUp>
+		SnagaLoaFrame:StopMovingOrSizing();
+		</OnMouseUp>
+
+	</Scripts>
+	 <Frames>
+	   <button name="Reload" text="Request" font="SystemFont" hidden="false" inherits="OptionsButtonTemplate">
+            <Size>
+             <AbsDimension x="79" y="21"/>
+            </Size>
+            <Anchors>
+             <anchor point="TOPLEFT" relativeTo="SnagaLoaFrame" relativePoint="TOPLEFT">
+              <offset>
+               <AbsDimension x="4" y="-4"/>
+              </offset>
+             </anchor>
+            </Anchors>
+            <Scripts>
+             <OnLoad>
+               this:RegisterForClicks("LeftButtonUp");
+             </OnLoad>
+             <OnClick>
+              SnagaLoa_Request();
+             </OnClick>
+            </Scripts>
+           </button>
+	   <button name="HideNow" text="X" font="SystemFont" hidden="false" inherits="OptionsButtonTemplate">
+            <Size>
+             <AbsDimension x="20" y="21"/>
+            </Size>
+            <Anchors>
+             <anchor point="TOPRIGHT" relativeTo="SnagaLoaFrame" relativePoint="TOPRIGHT">
+              <offset>
+               <AbsDimension x="-6" y="-4"/>
+              </offset>
+             </anchor>
+            </Anchors>
+            <Scripts>
+             <OnLoad>
+               this:RegisterForClicks("LeftButtonUp");
+             </OnLoad>
+             <OnClick>
+		frameshown = 0;
+		SnagaLoaFrame:Hide();
+		DEFAULT_CHAT_FRAME:AddMessage("Addon disabled.");
+             </OnClick>
+            </Scripts>
+           </button>
+           <button name="Broadcast" text="BC" font="SystemFont" hidden="true" inherits="OptionsButtonTemplate">
+            <Size>
+             <AbsDimension x="30" y="21"/>
+            </Size>
+            <Anchors>
+             <anchor point="TOPLEFT" relativeTo="SnagaLoaFrame" relativePoint="TOPLEFT">
+              <offset>
+               <AbsDimension x="4" y="-4"/>
+              </offset>
+             </anchor>
+            </Anchors>
+            <Scripts>
+             <OnLoad>
+               this:RegisterForClicks("LeftButtonUp");
+             </OnLoad>
+             <OnClick>
+		SnagaLoa_BroadCast();
+             </OnClick>
+            </Scripts>
+           </button>
+           <button name="Edit" text="Edit" font="SystemFont" hidden="true" inherits="OptionsButtonTemplate">
+            <Size>
+             <AbsDimension x="49" y="21"/>
+            </Size>
+            <Anchors>
+             <anchor point="TOPLEFT" relativeTo="SnagaLoaFrame" relativePoint="TOPLEFT">
+              <offset>
+               <AbsDimension x="33" y="-4"/>
+              </offset>
+             </anchor>
+            </Anchors>
+            <Scripts>
+             <OnLoad>
+               this:RegisterForClicks("LeftButtonUp");
+             </OnLoad>
+             <OnClick>
+		SnagaLoa_EditStart();
+             </OnClick>
+            </Scripts>
+           </button>           
+         </Frames>
+	<Layers>
+	  <Layer level="OVERLAY">
+           <FontString name="current1" inherits="GameFontNormalSmall">
+             <Color r="1" g="1" b="0.8"/>
+	     <Anchors>
+		<Anchor point="TOPLEFT" relativeTo="SnagaLoaFrame" relativePoint="TOPLEFT">
+		  <offset>
+		   <AbsDimension x="9" y="-25"/>
+		  </offset>
+		 </Anchor>
+	     </Anchors>
+	   </FontString>
+           <FontString name="current2" inherits="GameFontNormalSmall">
+             <Color r="1" g="1" b="1"/>
+	     <Anchors>
+		<Anchor point="TOPLEFT" relativeTo="SnagaLoaFrame" relativePoint="TOPLEFT">
+		  <offset>
+		   <AbsDimension x="50" y="-25"/>
+		  </offset>
+		 </Anchor>
+	     </Anchors>
+	   </FontString>
+	   <FontString name="pending1" inherits="GameFontNormalSmall">
+             <Color r="1" g="1" b="0.8"/>
+	     <Anchors>
+		<Anchor point="TOPLEFT" relativeTo="SnagaLoaFrame" relativePoint="TOPLEFT">
+		  <offset>
+		   <AbsDimension x="20" y="-45"/>
+		  </offset>
+		 </Anchor>
+	     </Anchors>
+	   </FontString>
+           <FontString name="SnagaLoaText1" inherits="GameFontNormalSmall">
+             <Color r="1" g="1" b="1"/>
+	     <Anchors>
+		<Anchor point="TOPLEFT" relativeTo="SnagaLoaFrame" relativePoint="TOPLEFT">
+		  <offset>
+		   <AbsDimension x="20" y="-45"/>
+		  </offset>
+		 </Anchor>
+	     </Anchors>
+	   </FontString>
+           <FontString name="SnagaLoaText2" inherits="GameFontNormalSmall">
+             <Color r="1" g="1" b="1"/>
+	     <Anchors>
+		<Anchor point="TOPLEFT" relativeTo="SnagaLoaFrame" relativePoint="TOPLEFT">
+		  <offset>
+		   <AbsDimension x="20" y="-55"/>
+		  </offset>
+		 </Anchor>
+	     </Anchors>
+	   </FontString>
+	   <FontString name="SnagaLoaText3" inherits="GameFontNormalSmall">
+             <Color r="1" g="1" b="1"/>
+	     <Anchors>
+		<Anchor point="TOPLEFT" relativeTo="SnagaLoaFrame" relativePoint="TOPLEFT">
+		  <offset>
+		   <AbsDimension x="20" y="-65"/>
+		  </offset>
+		 </Anchor>
+	     </Anchors>
+	   </FontString>
+           <FontString name="SnagaLoaText4" inherits="GameFontNormalSmall">
+             <Color r="1" g="1" b="1"/>
+	     <Anchors>
+		<Anchor point="TOPLEFT" relativeTo="SnagaLoaFrame" relativePoint="TOPLEFT">
+		  <offset>
+		   <AbsDimension x="20" y="-75"/>
+		  </offset>
+		 </Anchor>
+	     </Anchors>
+	   </FontString>
+	   <FontString name="SnagaLoaText5" inherits="GameFontNormalSmall">
+             <Color r="1" g="1" b="1"/>
+	     <Anchors>
+		<Anchor point="TOPLEFT" relativeTo="SnagaLoaFrame" relativePoint="TOPLEFT">
+		  <offset>
+		   <AbsDimension x="20" y="-85"/>
+		  </offset>
+		 </Anchor>
+	     </Anchors>
+	   </FontString>
+           <FontString name="SnagaLoaText6" inherits="GameFontNormalSmall">
+             <Color r="1" g="1" b="1"/>
+	     <Anchors>
+		<Anchor point="TOPLEFT" relativeTo="SnagaLoaFrame" relativePoint="TOPLEFT">
+		  <offset>
+		   <AbsDimension x="20" y="-95"/>
+		  </offset>
+		 </Anchor>
+	     </Anchors>
+	   </FontString>
+	   <FontString name="SnagaLoaText7" inherits="GameFontNormalSmall">
+             <Color r="1" g="1" b="1"/>
+	     <Anchors>
+		<Anchor point="TOPLEFT" relativeTo="SnagaLoaFrame" relativePoint="TOPLEFT">
+		  <offset>
+		   <AbsDimension x="20" y="-105"/>
+		  </offset>
+		 </Anchor>
+	     </Anchors>
+	   </FontString>
+           <FontString name="SnagaLoaText8" inherits="GameFontNormalSmall">
+             <Color r="1" g="1" b="1"/>
+	     <Anchors>
+		<Anchor point="TOPLEFT" relativeTo="SnagaLoaFrame" relativePoint="TOPLEFT">
+		  <offset>
+		   <AbsDimension x="20" y="-115"/>
+		  </offset>
+		 </Anchor>
+	     </Anchors>
+	   </FontString>
+           <FontString name="SnagaLoaText9" inherits="GameFontNormalSmall">
+             <Color r="1" g="1" b="1"/>
+	     <Anchors>
+		<Anchor point="TOPLEFT" relativeTo="SnagaLoaFrame" relativePoint="TOPLEFT">
+		  <offset>
+		   <AbsDimension x="20" y="-125"/>
+		  </offset>
+		 </Anchor>
+	     </Anchors>
+	   </FontString>
+           <FontString name="SnagaLoaText10" inherits="GameFontNormalSmall">
+             <Color r="1" g="1" b="1"/>
+	     <Anchors>
+		<Anchor point="TOPLEFT" relativeTo="SnagaLoaFrame" relativePoint="TOPLEFT">
+		  <offset>
+		   <AbsDimension x="20" y="-135"/>
+		  </offset>
+		 </Anchor>
+	     </Anchors>
+	   </FontString>
+	   <FontString name="SnagaLoaText11" inherits="GameFontNormalSmall">
+             <Color r="1" g="1" b="1"/>
+	     <Anchors>
+		<Anchor point="TOPLEFT" relativeTo="SnagaLoaFrame" relativePoint="TOPLEFT">
+		  <offset>
+		   <AbsDimension x="20" y="-145"/>
+		  </offset>
+		 </Anchor>
+	     </Anchors>
+	   </FontString>
+           <FontString name="SnagaLoaText12" inherits="GameFontNormalSmall">
+             <Color r="1" g="1" b="1"/>
+	     <Anchors>
+		<Anchor point="TOPLEFT" relativeTo="SnagaLoaFrame" relativePoint="TOPLEFT">
+		  <offset>
+		   <AbsDimension x="20" y="-155"/>
+		  </offset>
+		 </Anchor>
+	     </Anchors>
+	   </FontString>
+	   <FontString name="SnagaLoaText13" inherits="GameFontNormalSmall">
+             <Color r="1" g="1" b="1"/>
+	     <Anchors>
+		<Anchor point="TOPLEFT" relativeTo="SnagaLoaFrame" relativePoint="TOPLEFT">
+		  <offset>
+		   <AbsDimension x="20" y="-165"/>
+		  </offset>
+		 </Anchor>
+	     </Anchors>
+	   </FontString>
+           <FontString name="SnagaLoaText14" inherits="GameFontNormalSmall">
+             <Color r="1" g="1" b="1"/>
+	     <Anchors>
+		<Anchor point="TOPLEFT" relativeTo="SnagaLoaFrame" relativePoint="TOPLEFT">
+		  <offset>
+		   <AbsDimension x="20" y="-175"/>
+		  </offset>
+		 </Anchor>
+	     </Anchors>
+	   </FontString>
+	   <FontString name="SnagaLoaText15" inherits="GameFontNormalSmall">
+             <Color r="1" g="1" b="1"/>
+	     <Anchors>
+		<Anchor point="TOPLEFT" relativeTo="SnagaLoaFrame" relativePoint="TOPLEFT">
+		  <offset>
+		   <AbsDimension x="20" y="-185"/>
+		  </offset>
+		 </Anchor>
+	     </Anchors>
+	   </FontString>
+           <FontString name="SnagaLoaText16" inherits="GameFontNormalSmall">
+             <Color r="1" g="1" b="1"/>
+	     <Anchors>
+		<Anchor point="TOPLEFT" relativeTo="SnagaLoaFrame" relativePoint="TOPLEFT">
+		  <offset>
+		   <AbsDimension x="20" y="-195"/>
+		  </offset>
+		 </Anchor>
+	     </Anchors>
+	   </FontString>
+           <FontString name="SnagaLoaText17" inherits="GameFontNormalSmall">
+             <Color r="1" g="1" b="1"/>
+	     <Anchors>
+		<Anchor point="TOPLEFT" relativeTo="SnagaLoaFrame" relativePoint="TOPLEFT">
+		  <offset>
+		   <AbsDimension x="20" y="-205"/>
+		  </offset>
+		 </Anchor>
+	     </Anchors>
+	   </FontString>
+           <FontString name="SnagaLoaText18" inherits="GameFontNormalSmall">
+             <Color r="1" g="1" b="1"/>
+	     <Anchors>
+		<Anchor point="TOPLEFT" relativeTo="SnagaLoaFrame" relativePoint="TOPLEFT">
+		  <offset>
+		   <AbsDimension x="20" y="-215"/>
+		  </offset>
+		 </Anchor>
+	     </Anchors>
+	   </FontString>
+	   <FontString name="SnagaLoaText19" inherits="GameFontNormalSmall">
+             <Color r="1" g="1" b="1"/>
+	     <Anchors>
+		<Anchor point="TOPLEFT" relativeTo="SnagaLoaFrame" relativePoint="TOPLEFT">
+		  <offset>
+		   <AbsDimension x="20" y="-225"/>
+		  </offset>
+		 </Anchor>
+	     </Anchors>
+	   </FontString>
+           <FontString name="SnagaLoaText20" inherits="GameFontNormalSmall">
+             <Color r="1" g="1" b="1"/>
+	     <Anchors>
+		<Anchor point="TOPLEFT" relativeTo="SnagaLoaFrame" relativePoint="TOPLEFT">
+		  <offset>
+		   <AbsDimension x="20" y="-235"/>
+		  </offset>
+		 </Anchor>
+	     </Anchors>
+	   </FontString>
+	   <FontString name="SnagaLoaText21" inherits="GameFontNormalSmall">
+             <Color r="1" g="1" b="1"/>
+	     <Anchors>
+		<Anchor point="TOPLEFT" relativeTo="SnagaLoaFrame" relativePoint="TOPLEFT">
+		  <offset>
+		   <AbsDimension x="20" y="-245"/>
+		  </offset>
+		 </Anchor>
+	     </Anchors>
+	   </FontString>
+	 </Layer>
+	</Layers>
+
+</frame>
+<frame name="MF1" frameStrata="LOW" toplevel="true" enableMouse="true" movable="false" parent="MFX">
+	 <Size>
+            <AbsDimension x="70" y="15"/>
+         </Size>
+ 	 <Anchors>
+  	  <Anchor point="TOPLEFT" relativeTo="SnagaLoaFrame" relativePoint="TOPRIGHT">
+  	   <offset>
+  	   	<AbsDimension x="7" y="-7"/>
+  	   </offset>
+  	  </Anchor>
+  	 </Anchors>
+         <Scripts>
+          <OnLoad>
+            this:RegisterForDrag("LeftButton");
+          </OnLoad>
+	  <OnMouseDown>
+	   SnagaLoa_Add(M1:GetText());
+	   MF1:Hide();
+	  </OnMouseDown>
+         </Scripts>
+         <Layers>
+          <Layer level="OVERLAY">
+           <FontString name="M1" inherits="GameFontNormalSmall" text="Flangebucket">
+             <Color r="1" g="1" b="1"/>
+	     <Anchors>
+		<Anchor point="TOPLEFT" relativeTo="MF1" relativePoint="TOPLEFT">
+		  <offset>
+		   <AbsDimension x="1" y="0"/>
+		  </offset>
+		 </Anchor>
+	     </Anchors>
+	   </FontString>
+	  </Layer>
+	 </Layers>
+</frame>
+<frame name="MF2" frameStrata="LOW" toplevel="true" enableMouse="true" movable="false" parent="MFX">
+	 <Size>
+            <AbsDimension x="70" y="15"/>
+         </Size>
+ 	 <Anchors>
+  	  <Anchor point="TOPLEFT" relativeTo="MF1" relativePoint="BOTTOMLEFT">
+  	   <offset>
+  	   	<AbsDimension x="0" y="-3"/>
+  	   </offset>
+  	  </Anchor>
+  	 </Anchors>
+         <Scripts>
+          <OnLoad>
+            this:RegisterForDrag("LeftButton");
+          </OnLoad>
+	  <OnMouseDown>
+	   SnagaLoa_Add(M2:GetText());
+	   MF2:Hide();
+	  </OnMouseDown>
+         </Scripts>
+         <Layers>
+          <Layer level="OVERLAY">
+           <FontString name="M2" inherits="GameFontNormalSmall" text="Flangebucket">
+             <Color r="1" g="1" b="1"/>
+	     <Anchors>
+		<Anchor point="TOPLEFT" relativeTo="MF2" relativePoint="TOPLEFT">
+		  <offset>
+		   <AbsDimension x="1" y="0"/>
+		  </offset>
+		 </Anchor>
+	     </Anchors>
+	   </FontString>
+	  </Layer>
+	 </Layers>
+</frame>
+<frame name="MF3" frameStrata="LOW" toplevel="true" enableMouse="true" movable="false" parent="MFX">
+	 <Size>
+            <AbsDimension x="70" y="15"/>
+         </Size>
+ 	 <Anchors>
+  	  <Anchor point="TOPLEFT" relativeTo="MF2" relativePoint="BOTTOMLEFT">
+  	   <offset>
+  	   	<AbsDimension x="0" y="-3"/>
+  	   </offset>
+  	  </Anchor>
+  	 </Anchors>
+         <Scripts>
+          <OnLoad>
+            this:RegisterForDrag("LeftButton");
+          </OnLoad>
+	  <OnMouseDown>
+	   SnagaLoa_Add(M3:GetText());
+	   MF3:Hide();
+	  </OnMouseDown>
+         </Scripts>
+         <Layers>
+          <Layer level="OVERLAY">
+           <FontString name="M3" inherits="GameFontNormalSmall" text="Flangebucket">
+             <Color r="1" g="1" b="1"/>
+	     <Anchors>
+		<Anchor point="TOPLEFT" relativeTo="MF3" relativePoint="TOPLEFT">
+		  <offset>
+		   <AbsDimension x="1" y="0"/>
+		  </offset>
+		 </Anchor>
+	     </Anchors>
+	   </FontString>
+	  </Layer>
+	 </Layers>
+</frame>
+<frame name="MF4" frameStrata="LOW" toplevel="true" enableMouse="true" movable="false" parent="MFX">
+	 <Size>
+            <AbsDimension x="70" y="15"/>
+         </Size>
+ 	 <Anchors>
+  	  <Anchor point="TOPLEFT" relativeTo="MF3" relativePoint="BOTTOMLEFT">
+  	   <offset>
+  	   	<AbsDimension x="0" y="-3"/>
+  	   </offset>
+  	  </Anchor>
+  	 </Anchors>
+         <Scripts>
+          <OnLoad>
+            this:RegisterForDrag("LeftButton");
+          </OnLoad>
+	  <OnMouseDown>
+	   SnagaLoa_Add(M4:GetText());
+	   MF4:Hide();
+	  </OnMouseDown>
+         </Scripts>
+         <Layers>
+          <Layer level="OVERLAY">
+           <FontString name="M4" inherits="GameFontNormalSmall" text="Flangebucket">
+             <Color r="1" g="1" b="1"/>
+	     <Anchors>
+		<Anchor point="TOPLEFT" relativeTo="MF4" relativePoint="TOPLEFT">
+		  <offset>
+		   <AbsDimension x="1" y="0"/>
+		  </offset>
+		 </Anchor>
+	     </Anchors>
+	   </FontString>
+	  </Layer>
+	 </Layers>
+</frame>
+<frame name="MF5" frameStrata="LOW" toplevel="true" enableMouse="true" movable="false" parent="MFX">
+	 <Size>
+            <AbsDimension x="70" y="15"/>
+         </Size>
+ 	 <Anchors>
+  	  <Anchor point="TOPLEFT" relativeTo="MF4" relativePoint="BOTTOMLEFT">
+  	   <offset>
+  	   	<AbsDimension x="0" y="-3"/>
+  	   </offset>
+  	  </Anchor>
+  	 </Anchors>
+         <Scripts>
+          <OnLoad>
+            this:RegisterForDrag("LeftButton");
+          </OnLoad>
+	  <OnMouseDown>
+	   SnagaLoa_Add(M5:GetText());
+	   MF5:Hide();
+	  </OnMouseDown>
+         </Scripts>
+         <Layers>
+          <Layer level="OVERLAY">
+           <FontString name="M5" inherits="GameFontNormalSmall" text="Flangebucket">
+             <Color r="1" g="1" b="1"/>
+	     <Anchors>
+		<Anchor point="TOPLEFT" relativeTo="MF5" relativePoint="TOPLEFT">
+		  <offset>
+		   <AbsDimension x="1" y="0"/>
+		  </offset>
+		 </Anchor>
+	     </Anchors>
+	   </FontString>
+	  </Layer>
+	 </Layers>
+</frame>
+<frame name="MF6" frameStrata="LOW" toplevel="true" enableMouse="true" movable="false" parent="MFX">
+	 <Size>
+            <AbsDimension x="70" y="15"/>
+         </Size>
+ 	 <Anchors>
+  	  <Anchor point="TOPLEFT" relativeTo="MF5" relativePoint="BOTTOMLEFT">
+  	   <offset>
+  	   	<AbsDimension x="0" y="-3"/>
+  	   </offset>
+  	  </Anchor>
+  	 </Anchors>
+         <Scripts>
+          <OnLoad>
+            this:RegisterForDrag("LeftButton");
+          </OnLoad>
+	  <OnMouseDown>
+	   SnagaLoa_Add(M6:GetText());
+	   MF6:Hide();
+	  </OnMouseDown>
+         </Scripts>
+         <Layers>
+          <Layer level="OVERLAY">
+           <FontString name="M6" inherits="GameFontNormalSmall" text="Flangebucket">
+             <Color r="1" g="1" b="1"/>
+	     <Anchors>
+		<Anchor point="TOPLEFT" relativeTo="MF6" relativePoint="TOPLEFT">
+		  <offset>
+		   <AbsDimension x="1" y="0"/>
+		  </offset>
+		 </Anchor>
+	     </Anchors>
+	   </FontString>
+	  </Layer>
+	 </Layers>
+</frame>
+<frame name="MF7" frameStrata="LOW" toplevel="true" enableMouse="true" movable="false" parent="MFX">
+	 <Size>
+            <AbsDimension x="70" y="15"/>
+         </Size>
+ 	 <Anchors>
+  	  <Anchor point="TOPLEFT" relativeTo="MF6" relativePoint="BOTTOMLEFT">
+  	   <offset>
+  	   	<AbsDimension x="0" y="-3"/>
+  	   </offset>
+  	  </Anchor>
+  	 </Anchors>
+         <Scripts>
+          <OnLoad>
+            this:RegisterForDrag("LeftButton");
+          </OnLoad>
+	  <OnMouseDown>
+	   SnagaLoa_Add(M7:GetText());
+	   MF7:Hide();
+	  </OnMouseDown>
+         </Scripts>
+         <Layers>
+          <Layer level="OVERLAY">
+           <FontString name="M7" inherits="GameFontNormalSmall" text="Flangebucket">
+             <Color r="1" g="1" b="1"/>
+	     <Anchors>
+		<Anchor point="TOPLEFT" relativeTo="MF7" relativePoint="TOPLEFT">
+		  <offset>
+		   <AbsDimension x="1" y="0"/>
+		  </offset>
+		 </Anchor>
+	     </Anchors>
+	   </FontString>
+	  </Layer>
+	 </Layers>
+</frame>
+<frame name="MF8" frameStrata="LOW" toplevel="true" enableMouse="true" movable="false" parent="MFX">
+	 <Size>
+            <AbsDimension x="70" y="15"/>
+         </Size>
+ 	 <Anchors>
+  	  <Anchor point="TOPLEFT" relativeTo="MF7" relativePoint="BOTTOMLEFT">
+  	   <offset>
+  	   	<AbsDimension x="0" y="-3"/>
+  	   </offset>
+  	  </Anchor>
+  	 </Anchors>
+         <Scripts>
+          <OnLoad>
+            this:RegisterForDrag("LeftButton");
+          </OnLoad>
+	  <OnMouseDown>
+	   SnagaLoa_Add(M8:GetText());
+	   MF8:Hide();
+	  </OnMouseDown>
+         </Scripts>
+         <Layers>
+          <Layer level="OVERLAY">
+           <FontString name="M8" inherits="GameFontNormalSmall" text="Flangebucket">
+             <Color r="1" g="1" b="1"/>
+	     <Anchors>
+		<Anchor point="TOPLEFT" relativeTo="MF8" relativePoint="TOPLEFT">
+		  <offset>
+		   <AbsDimension x="1" y="0"/>
+		  </offset>
+		 </Anchor>
+	     </Anchors>
+	   </FontString>
+	  </Layer>
+	 </Layers>
+</frame>
+<frame name="MF9" frameStrata="LOW" toplevel="true" enableMouse="true" movable="false" parent="MFX">
+	 <Size>
+            <AbsDimension x="70" y="15"/>
+         </Size>
+ 	 <Anchors>
+  	  <Anchor point="TOPLEFT" relativeTo="MF8" relativePoint="BOTTOMLEFT">
+  	   <offset>
+  	   	<AbsDimension x="0" y="-3"/>
+  	   </offset>
+  	  </Anchor>
+  	 </Anchors>
+         <Scripts>
+          <OnLoad>
+            this:RegisterForDrag("LeftButton");
+          </OnLoad>
+	  <OnMouseDown>
+	   SnagaLoa_Add(M9:GetText());
+	   MF9:Hide();
+	  </OnMouseDown>
+         </Scripts>
+         <Layers>
+          <Layer level="OVERLAY">
+           <FontString name="M9" inherits="GameFontNormalSmall" text="Flangebucket">
+             <Color r="1" g="1" b="1"/>
+	     <Anchors>
+		<Anchor point="TOPLEFT" relativeTo="MF9" relativePoint="TOPLEFT">
+		  <offset>
+		   <AbsDimension x="1" y="0"/>
+		  </offset>
+		 </Anchor>
+	     </Anchors>
+	   </FontString>
+	  </Layer>
+	 </Layers>
+</frame>
+<frame name="MF10" frameStrata="LOW" toplevel="true" enableMouse="true" movable="false" parent="MFX">
+	 <Size>
+            <AbsDimension x="70" y="15"/>
+         </Size>
+ 	 <Anchors>
+  	  <Anchor point="TOPLEFT" relativeTo="MF9" relativePoint="BOTTOMLEFT">
+  	   <offset>
+  	   	<AbsDimension x="0" y="-3"/>
+  	   </offset>
+  	  </Anchor>
+  	 </Anchors>
+         <Scripts>
+          <OnLoad>
+            this:RegisterForDrag("LeftButton");
+          </OnLoad>
+	  <OnMouseDown>
+	   SnagaLoa_Add(M10:GetText());
+	   MF10:Hide();
+	  </OnMouseDown>
+         </Scripts>
+         <Layers>
+          <Layer level="OVERLAY">
+           <FontString name="M10" inherits="GameFontNormalSmall" text="Flangebucket">
+             <Color r="1" g="1" b="1"/>
+	     <Anchors>
+		<Anchor point="TOPLEFT" relativeTo="MF10" relativePoint="TOPLEFT">
+		  <offset>
+		   <AbsDimension x="1" y="0"/>
+		  </offset>
+		 </Anchor>
+	     </Anchors>
+	   </FontString>
+	  </Layer>
+	 </Layers>
+</frame>
+<frame name="MF11" frameStrata="LOW" toplevel="true" enableMouse="true" movable="false" parent="MFX">
+	 <Size>
+            <AbsDimension x="70" y="15"/>
+         </Size>
+ 	 <Anchors>
+  	  <Anchor point="TOPLEFT" relativeTo="MF10" relativePoint="BOTTOMLEFT">
+  	   <offset>
+  	   	<AbsDimension x="0" y="-3"/>
+  	   </offset>
+  	  </Anchor>
+  	 </Anchors>
+         <Scripts>
+          <OnLoad>
+            this:RegisterForDrag("LeftButton");
+          </OnLoad>
+	  <OnMouseDown>
+	   SnagaLoa_Add(M11:GetText());
+	   MF11:Hide();
+	  </OnMouseDown>
+         </Scripts>
+         <Layers>
+          <Layer level="OVERLAY">
+           <FontString name="M11" inherits="GameFontNormalSmall" text="Flangebucket">
+             <Color r="1" g="1" b="1"/>
+	     <Anchors>
+		<Anchor point="TOPLEFT" relativeTo="MF11" relativePoint="TOPLEFT">
+		  <offset>
+		   <AbsDimension x="1" y="0"/>
+		  </offset>
+		 </Anchor>
+	     </Anchors>
+	   </FontString>
+	  </Layer>
+	 </Layers>
+</frame>
+<frame name="MF12" frameStrata="LOW" toplevel="true" enableMouse="true" movable="false" parent="MFX">
+	 <Size>
+            <AbsDimension x="70" y="15"/>
+         </Size>
+ 	 <Anchors>
+  	  <Anchor point="TOPLEFT" relativeTo="MF11" relativePoint="BOTTOMLEFT">
+  	   <offset>
+  	   	<AbsDimension x="0" y="-3"/>
+  	   </offset>
+  	  </Anchor>
+  	 </Anchors>
+         <Scripts>
+          <OnLoad>
+            this:RegisterForDrag("LeftButton");
+          </OnLoad>
+	  <OnMouseDown>
+	   SnagaLoa_Add(M12:GetText());
+	   MF12:Hide();
+	  </OnMouseDown>
+         </Scripts>
+         <Layers>
+          <Layer level="OVERLAY">
+           <FontString name="M12" inherits="GameFontNormalSmall" text="Flangebucket">
+             <Color r="1" g="1" b="1"/>
+	     <Anchors>
+		<Anchor point="TOPLEFT" relativeTo="MF12" relativePoint="TOPLEFT">
+		  <offset>
+		   <AbsDimension x="1" y="0"/>
+		  </offset>
+		 </Anchor>
+	     </Anchors>
+	   </FontString>
+	  </Layer>
+	 </Layers>
+</frame>
+<frame name="MF13" frameStrata="LOW" toplevel="true" enableMouse="true" movable="false" parent="MFX">
+	 <Size>
+            <AbsDimension x="70" y="15"/>
+         </Size>
+ 	 <Anchors>
+  	  <Anchor point="TOPLEFT" relativeTo="MF12" relativePoint="BOTTOMLEFT">
+  	   <offset>
+  	   	<AbsDimension x="0" y="-3"/>
+  	   </offset>
+  	  </Anchor>
+  	 </Anchors>
+         <Scripts>
+          <OnLoad>
+            this:RegisterForDrag("LeftButton");
+          </OnLoad>
+	  <OnMouseDown>
+	   SnagaLoa_Add(M13:GetText());
+	   MF13:Hide();
+	  </OnMouseDown>
+         </Scripts>
+         <Layers>
+          <Layer level="OVERLAY">
+           <FontString name="M13" inherits="GameFontNormalSmall" text="Flangebucket">
+             <Color r="1" g="1" b="1"/>
+	     <Anchors>
+		<Anchor point="TOPLEFT" relativeTo="MF13" relativePoint="TOPLEFT">
+		  <offset>
+		   <AbsDimension x="1" y="0"/>
+		  </offset>
+		 </Anchor>
+	     </Anchors>
+	   </FontString>
+	  </Layer>
+	 </Layers>
+</frame>
+<frame name="MF14" frameStrata="LOW" toplevel="true" enableMouse="true" movable="false" parent="MFX">
+	 <Size>
+            <AbsDimension x="70" y="15"/>
+         </Size>
+ 	 <Anchors>
+  	  <Anchor point="TOPLEFT" relativeTo="MF13" relativePoint="BOTTOMLEFT">
+  	   <offset>
+  	   	<AbsDimension x="0" y="-3"/>
+  	   </offset>
+  	  </Anchor>
+  	 </Anchors>
+         <Scripts>
+          <OnLoad>
+            this:RegisterForDrag("LeftButton");
+          </OnLoad>
+	  <OnMouseDown>
+	   SnagaLoa_Add(M14:GetText());
+	   MF14:Hide();
+	  </OnMouseDown>
+         </Scripts>
+         <Layers>
+          <Layer level="OVERLAY">
+           <FontString name="M14" inherits="GameFontNormalSmall" text="Flangebucket">
+             <Color r="1" g="1" b="1"/>
+	     <Anchors>
+		<Anchor point="TOPLEFT" relativeTo="MF14" relativePoint="TOPLEFT">
+		  <offset>
+		   <AbsDimension x="1" y="0"/>
+		  </offset>
+		 </Anchor>
+	     </Anchors>
+	   </FontString>
+	  </Layer>
+	 </Layers>
+</frame>
+<frame name="MF15" frameStrata="LOW" toplevel="true" enableMouse="true" movable="false" parent="MFX">
+	 <Size>
+            <AbsDimension x="70" y="15"/>
+         </Size>
+ 	 <Anchors>
+  	  <Anchor point="TOPLEFT" relativeTo="MF14" relativePoint="BOTTOMLEFT">
+  	   <offset>
+  	   	<AbsDimension x="0" y="-3"/>
+  	   </offset>
+  	  </Anchor>
+  	 </Anchors>
+         <Scripts>
+          <OnLoad>
+            this:RegisterForDrag("LeftButton");
+          </OnLoad>
+	  <OnMouseDown>
+	   SnagaLoa_Add(M15:GetText());
+	   MF15:Hide();
+	  </OnMouseDown>
+         </Scripts>
+         <Layers>
+          <Layer level="OVERLAY">
+           <FontString name="M15" inherits="GameFontNormalSmall" text="Flangebucket">
+             <Color r="1" g="1" b="1"/>
+	     <Anchors>
+		<Anchor point="TOPLEFT" relativeTo="MF15" relativePoint="TOPLEFT">
+		  <offset>
+		   <AbsDimension x="1" y="0"/>
+		  </offset>
+		 </Anchor>
+	     </Anchors>
+	   </FontString>
+	  </Layer>
+	 </Layers>
+</frame>
+<frame name="MFX" frameStrata="BACKGROUND" toplevel="false" hidden="false" enableMouse="true" movable="false" parent="SnagaLoaFrame">
+	<Size>
+	 <AbsDimension x="83" y="40"/>
+	</Size>
+	<Anchors>
+	 <Anchor point="TOPLEFT" relativeTo="SnagaLoaFrame" relativePoint="TOPRIGHT">
+	  <offset>
+	   <AbsDimension x="0" y="0"/>
+	  </offset>
+	 </Anchor>
+	</Anchors>
+	<Backdrop bgFile="Interface\TutorialFrame\TutorialFrameBackground" edgeFile="Interface\Tooltips\UI-Tooltip-Border" tile="true">
+		<BackgroundInsets>
+			<AbsInset left="5" right="4" top="5" bottom="5"/>
+		</BackgroundInsets>
+		<TileSize>
+			<AbsValue val="16"/>
+		</TileSize>
+		<EdgeSize>
+			<AbsValue val="16"/>
+		</EdgeSize>
+	</Backdrop>
+</frame>
+<frame name="MFXB" frameStrata="LOW" toplevel="true" hidden="false" enableMouse="true" movable="false" parent="MFX">
+	<Size>
+	 <AbsDimension x="74" y="21"/>
+	</Size>
+	<Anchors>
+	 <Anchor point="BOTTOMRIGHT" relativeTo="MFX" relativePoint="BOTTOMRIGHT">
+	  <offset>
+	   <AbsDimension x="-4" y="4"/>
+	  </offset>
+	 </Anchor>
+	</Anchors>
+	<Backdrop bgFile="Interface\TutorialFrame\TutorialFrameBackground"/>
+	<Frames>
+	   <button name="save" text="Save" font="SystemFont" hidden="false" inherits="OptionsButtonTemplate">
+            <Size>
+             <AbsDimension x="37" y="21"/>
+            </Size>
+            <Anchors>
+             <anchor point="BOTTOMRIGHT" relativeTo="MFXB" relativePoint="BOTTOMRIGHT">
+              <offset>
+               <AbsDimension x="-1" y="1"/>
+              </offset>
+             </anchor>
+            </Anchors>
+            <Scripts>
+             <OnLoad>
+               this:RegisterForClicks("LeftButtonUp");
+             </OnLoad>
+             <OnClick>
+              SnagaLoa_SaveButton();
+             </OnClick>
+            </Scripts>
+           </button>
+	   <button name="newtry" text="New" font="SystemFont" hidden="false" inherits="OptionsButtonTemplate">
+            <Size>
+             <AbsDimension x="36" y="21"/>
+            </Size>
+            <Anchors>
+             <anchor point="BOTTOMLEFT" relativeTo="MFXB" relativePoint="BOTTOMLEFT">
+              <offset>
+               <AbsDimension x="0" y="1"/>
+              </offset>
+             </anchor>
+            </Anchors>
+            <Scripts>
+             <OnLoad>
+               this:RegisterForClicks("LeftButtonUp");
+             </OnLoad>
+             <OnClick>
+              SnagaLoa_NewButton();
+             </OnClick>
+            </Scripts>
+           </button>
+          </Frames>	
+</frame>
+</Ui>

@@ -1,0 +1,9 @@
+## Interface: 11200
+## Version: 3.2
+## Author: Snaga (EU Kazzak)
+## Title: SnagaLoatheb
+## Notes: Makes rotating Heals on Loatheb a lot easier.
+## SavedVariablesPerCharacter: frameshown, master, SnagaLoa_Names, generated
+
+SnagaLoa.xml
+SnagaLoa.lua
